@@ -5,24 +5,25 @@ from Telemetry import Telemetry
 def main():
     tel = Telemetry()
     
-    driveFunctions(tel)
+    d = Drive(tel)
     
-    goStraight(50)
+    
+    d.goStraight(.50)
     time.sleep(3)
 
-    goGeneralBack(50)
+    d.goGeneralBack(.50)
     time.sleep(3)
     
-    gofast(50)
+    d.gofast(.50)
     time.sleep(3)
     
-    stop()
+    d.stop()
     time.sleep(3)
     
-    turnLeft(90, 50)
+    d.turnLeft(90, 50)
     time.sleep(3)
 
-    turnRight(90, 50)
+    d.turnRight(90, 50)
     time.sleep(3)
 
 if __name__ == "__main__":
