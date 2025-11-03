@@ -1,0 +1,45 @@
+def getMagneticStrength():
+    x, y, z = IMU.getMag()
+    strength = math.sqrt(x**2 + y**2 + z**2)
+    return strength
+
+def drop():
+    dropMotor.pwm(0.5)
+
+
+def dropPayload(motor, openAngle, closeAngle, speed):
+    dropMotor.run_to_relative_position(openAngle, speed)
+    time.sleep(1.5)  
+    dropMotor.run_to_relative_position(closeAngle, speed)
+    
+    
+def magReached(old_field, new_field):
+    if new_field > MAGNET_THRESHOLD:
+        if new_field < old_field:
+            return True
+    return False
+
+def turnLeft(angle, power):
+    leftMotor.stop()
+    rightMotor.run_for_degrees(angle, speed=power, blocking=False)
+
+def turnRight(angle, power):
+    rightMotor.stop()
+    leftMotor.run_for_degrees(angle, speed=power, blocking=False)
+    
+
+def goStraight(speed):
+    leftMotor.pwm(speed)
+    rightMotor.pwm(speed)
+    
+def goGeneralBack(speed):
+    leftMotor.pwm(-1.4 * speed)
+    rightMotor.pwm(-1.4 * speed)
+    
+def stop():
+    leftMotor.pwm(0)
+    rightMotor.pwm(0)
+    
+def gofast(speed):
+    leftMotor.pwm(2 * speed)
+    rightMotor.pwm(2 * speed)
