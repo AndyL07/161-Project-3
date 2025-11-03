@@ -7,7 +7,7 @@ def __init__(telObj, magThresh):
     tel = telObj
     MAGNET_THRESHOLD = magThresh
     
-    dropMotor = Motor('B')
+    dropMotor = Motor('D')
     IMU = IMUSensor()
 
     def getMagneticStrength():

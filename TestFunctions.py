@@ -1,7 +1,12 @@
-import payloadFunctions
-import driveFunctions
+from payloadFunctions import *
+from driveFunctions import *
+from Telemetry import Telemetry
 
 def main():
+    tel = Telemetry()
+    
+    driveFunctions(tel)
+    
     goStraight(50)
     time.sleep(3)
 
