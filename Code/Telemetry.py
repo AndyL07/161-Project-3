@@ -15,7 +15,7 @@ class Telemetry():
         self.telemetryStr = self.capText
         self.add(self.runTime.currTime(), "Current Time")
     
-    def add(self, value, label=' '):
+    def add(self, value, label=''):
         if type(value) is str:
             self.telemetryStr += value + "\n"
         else:

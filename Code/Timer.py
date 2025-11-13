@@ -15,6 +15,12 @@ class Timer():
     def currTime(self):
         return time.perf_counter() - self.startTime
     
+    def setFlag(self, newFlag):
+        self.flagTime = newFlag
+        
+    def reset(self):
+        self.startTime = time.perf_counter()
+    
     def flagReached(self):
         return self.currTime() > self.flagTime
     
