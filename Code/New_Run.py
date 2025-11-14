@@ -21,10 +21,7 @@ import time
 # Constants
 # ----------------------
 WAIT_TIME = 0.05
-MAX_BREAK_TIME = 4
-TURN_TIME = 2
-LOW_TURN = 35
-HIGH_TURN = 80
+SPEED = 0.5
 
 # Running Code
 # ------------------------
@@ -48,9 +45,9 @@ def main():
                 lineFound = lineFinder.value
 
                 if lineFound:
-                    d.goStraight(0.5)
+                    d.goStraight(SPEED)
                 else:
-                    d.sweep(0.5)
+                    d.sweep(SPEED)
 
                 # Tellemetry
                 print(tel)

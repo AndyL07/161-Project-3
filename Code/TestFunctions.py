@@ -1,12 +1,14 @@
 from payloadFunctions import *
 from driveFunctions import Drive
+from Data_Collection import DataCollection
 from Telemetry import Telemetry
 from Timer import Timer
 import time
 
 def main():
     runTime = Timer()
-    tel = Telemetry(runTime)
+    data = DataCollection()
+    tel = Telemetry(runTime, data)
     d = Drive(tel)
     
     d.goStraight(.50)

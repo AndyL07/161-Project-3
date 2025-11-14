@@ -62,10 +62,11 @@ class Drive:
                 # Turn right
                 self.leftMotor.pwm(speed)
                 self.rightMotor.pwm(speed)
-                self.tel.add("Sweeping Right")
+                self.tel.add("Sweeping Right - 1st")
                 
                 if self.sweepTimer.flagReached():
                     self.sweepTimer.reset()
+                    self.sweepTimer.setFlag(SWEEP_TIME * 2)
                     self.sweeping = 2
             case 2:
                 # Turn left
@@ -76,7 +77,17 @@ class Drive:
                 
                 if self.sweepTimer.flagReached():
                     self.sweepTimer.reset()
-                    self.sweeping = 0
+                    self.sweepTimer.setFlag(SWEEP_TIME)
+                    self.sweeping = 3
+            case 3:
+                # Turn right
+                self.leftMotor.pwm(speed)
+                self.rightMotor.pwm(speed)
+                self.tel.add("Sweeping Right - 2nd")
+                
+                if self.sweepTimer.flagReached():
+                    self.sweepTimer.reset()
+                    self.sweeping = 2
         if self.print:
             print(self.tel)
             self.tel.reset()
