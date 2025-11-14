@@ -51,6 +51,7 @@ def main():
 
                 # Tellemetry
                 print(tel)
+                tel.reset()
 
                 # Wait time
                 time.sleep(WAIT_TIME)
@@ -60,13 +61,8 @@ def main():
                 break
 
     except KeyboardInterrupt:
-        # goStraight()
-        # time.sleep(WAIT_TIME)
-        # stop()
+        d.stop()
         print("\nCtrl+C detected. Exiting...")
 
 if __name__ == '__main__':
     main()
-    
-# def curr_time():
-#     return time.perf_counter() - start_time
