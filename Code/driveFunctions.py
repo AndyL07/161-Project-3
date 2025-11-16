@@ -1,19 +1,19 @@
 #from Advanced_Motor import AdvMotor
-from buildHat import Motor
+from buildhat import Motor
 #from Telemetry import Telemetry
 from Timer import Timer
 #import time
 
-SWEEP_TIME = 0.8
-SWEEP_FORWARD_TIME = 0.2
+SWEEP_TIME = 0.45
+SWEEP_FORWARD_TIME = 0.35
 
 class Drive:
     def __init__(self, telObj, prints=False):
         self.tel = telObj
         
         self.print = prints
-        self.leftMotor = Motor('A')
-        self.rightMotor = Motor('B')
+        self.leftMotor = Motor('C')
+        self.rightMotor = Motor('D')
         
         self.sweeping = 0
         self.sweepTimer = Timer(SWEEP_TIME)
@@ -51,11 +51,12 @@ class Drive:
             print(self.tel)
             self.tel.reset()
         
-    def goStraight(self, speed):
+    def goStraight(self, speed, resetCase=True):
         self.leftMotor.pwm(-speed)
         self.rightMotor.pwm(speed)
         self.tel.add("Going Straight")
-        self.sweeping = 0
+        if resetCase:
+            self.sweeping = 0
         if self.print:
             print(self.tel)
             self.tel.reset()
@@ -69,14 +70,18 @@ class Drive:
             self.tel.reset()
         
     def sweep(self, speed):
+        self.tel.add(self.sweeping, "Case")
         match self.sweeping:
             case 0:
                 self.sweepForwardTimer.reset()
                 self.sweepTimer.reset()
+                self.sweepTimer.setFlag(SWEEP_TIME)
                 self.sweeping = 2
+                self.tel.add("Initial Case")
             case 1:
-                self.goStraight(speed)
+                self.goStraight(speed, False)
                 self.tel.add("Sweeping Forward")
+                self.tel.add(self.sweepForwardTimer.currTime(), "Forward Time")
                 
                 if self.sweepForwardTimer.flagReached():
                     self.sweepTimer.reset()
@@ -85,6 +90,7 @@ class Drive:
             case 2:
                 self.goRight(speed)
                 self.tel.add("Sweeping Right - 1st")
+                self.tel.add(self.sweepTimer.getFlag(), "Timer Flag")
                 
                 if self.sweepTimer.flagReached():
                     self.sweepTimer.reset()
@@ -93,6 +99,7 @@ class Drive:
             case 3:
                 self.goLeft(speed)
                 self.tel.add("Sweeping Left")
+                self.tel.add(self.sweepTimer.getFlag(), "Timer Flag")
                 
                 if self.sweepTimer.flagReached():
                     self.sweepTimer.reset()
@@ -101,6 +108,7 @@ class Drive:
             case 4:
                 self.goRight(speed)
                 self.tel.add("Sweeping Right - 2nd")
+                self.tel.add(self.sweepTimer.getFlag(), "Timer Flag")
                 
                 if self.sweepTimer.flagReached():
                     self.sweepForwardTimer.reset()

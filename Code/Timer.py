@@ -18,6 +18,9 @@ class Timer():
     def setFlag(self, newFlag):
         self.flagTime = newFlag
         
+    def getFlag(self):
+        return self.flagTime
+        
     def reset(self):
         self.startTime = time.perf_counter()
     

@@ -13,10 +13,11 @@ from Timer import Timer
 class AdvMotor(Motor):
     def __init__(self, port):
         super.__init__(port)
-        self.runTimer
+        self.runTimer = Timer()
         
     def runForTime(self, speed, time):
-        self.runTimer = Timer(time)
+        self.runTimer.reset
+        self.runTimer.setFlag(time)
         if self.runTimer.flagReached():
             super.pwm(0)
         else:

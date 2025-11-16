@@ -67,10 +67,10 @@ def main():
     except KeyboardInterrupt:
         print("\nCtrl+C detected. Exiting...")
         motor.stop()
-        try:
-            motorB.stop()
-        except:
-            pass
+        # try:
+        #     # motorB.stop()
+        # except:
+        #     pass
 
 
 

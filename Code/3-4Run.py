@@ -1,5 +1,5 @@
-# File Name: <New_Run.py>
-# Date: <11/13/25>
+# File Name: <3-4Run.py>
+# Date: <11/15/25>
 # By: <Andrew Lullo>
 # <lullo>
 # Section: <4>
@@ -7,9 +7,9 @@
 
 
 # Imports
-# --------------------------
+# ------------------------------------------
 from basehat import LineFinder
-# from payloadFunctions import Payload
+from payloadFunctions import Payload
 from driveFunctions import Drive
 from Telemetry import Telemetry
 from Timer import Timer
@@ -20,6 +20,8 @@ import time
 WAIT_TIME = 0.05
 STRAIGHT_SPEED = 0.8
 SWEEP_SPEED = 0.5
+MAG_THRESH = 300
+DROP_DELAY = 1.2
 
 # Running Code
 # ------------------------
@@ -34,7 +36,11 @@ def main():
     
     runTime = Timer()
     tel = Telemetry(runTime)
-    d = Drive(tel)   
+    d = Drive(tel)
+    pay = Payload(tel, MAG_THRESH)
+    
+    d.goStraight(0.8)
+    time.sleep(5)
     
     try: 
         while True:
@@ -48,6 +54,10 @@ def main():
                 else:
                     print("No Line")
                     d.sweep(SWEEP_SPEED)
+                    
+                mag = pay.getMagneticStrength()
+                if mag > MAG_THRESH:
+                    pay.drop(DROP_DELAY)
 
                 # Tellemetry
                 print(tel)
