@@ -18,7 +18,7 @@ import time
 # Constants
 # ----------------------
 WAIT_TIME = 0.05
-STRAIGHT_SPEED = 0.8
+STRAIGHT_SPEED = 0.6
 SWEEP_SPEED = 0.5
 
 # Running Code

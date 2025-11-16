@@ -4,8 +4,8 @@ from Timer import Timer
 import math as m
 import time
 
-INITIAL_POS = 90
-FINAL_POS = -90
+INITIAL_POS = 160
+FINAL_POS = 0
 
 class Payload():
 
@@ -13,24 +13,41 @@ class Payload():
         self.tel = telObj
         self.MAGNET_THRESHOLD = magThresh
         
-        self.dropMotor = Motor('D')
+        self.dropMotor = Motor('A')
         self.dropMotor.run_to_position(INITIAL_POS)
         self.IMU = IMUSensor()
         self.dropping = 0
+        self.mag = 0
+        self.dropTimer = Timer()
+        self.magTimer = Timer()
+
+    def magFinder(self, threshold, delay):
+        match self.mag:
+            case 0:
+                if self.getMagneticStrength() > threshold:
+                    self.magTimer = Timer(delay)
+                    self.mag = 1
+                    return 1
+            case 1:
+                if self.magTimer.flagReached():
+                    self.mag = 0
+        return 0
 
     def getMagneticStrength(self):
         x, y, z = self.IMU.getMag()
         strength = m.sqrt(x**2 + y**2 + z**2)
-        self.tel.add("Mag Strength", strength)
+        self.tel.add(strength, "Mag Strength")
+#         self.tel.add("test")
+#         print(f"Mag Strength: {strength:2.3f}")
         return strength
     
     def drop(self, delay):
         match self.dropping:
             case 0:
-                dropTimer = Timer(delay)
+                self.dropTimer = Timer(delay)
             case 1:
-                if dropTimer.flagReached():
-                    self.dropMotor.run_to_position(FINAL_POS)
+                if self.dropTimer.flagReached():
+                    self.dropMotor.run_to_position(FINAL_POS, direction='clockwise')
     
     
     def dropPayload(self, openAngle, closeAngle, speed):

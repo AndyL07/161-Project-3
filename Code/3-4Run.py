@@ -20,8 +20,10 @@ import time
 WAIT_TIME = 0.05
 STRAIGHT_SPEED = 0.8
 SWEEP_SPEED = 0.5
-MAG_THRESH = 300
-DROP_DELAY = 1.2
+MAG_THRESH = 1000
+DROP_DELAY = 0.
+FIND_DELAY = 1.0
+STRAGHT_TIME = 4
 
 # Running Code
 # ------------------------
@@ -39,8 +41,15 @@ def main():
     d = Drive(tel)
     pay = Payload(tel, MAG_THRESH)
     
+    print(f"Going straight for {STRAGHT_TIME} seconds")
     d.goStraight(0.8)
-    time.sleep(5)
+    time.sleep(STRAGHT_TIME)
+    print("Done going straight")
+    
+    mags = 0
+    destination = 1
+    destination += 1
+    sweep = True
     
     try: 
         while True:
@@ -48,16 +57,22 @@ def main():
                 # update and read the values of the lineFinder
                 lineFound = lineFinder.value
 
-                if lineFound:
-                    print("Line")
-                    d.goStraight(STRAIGHT_SPEED)
+                if sweep:
+                    if lineFound:
+                        print("Line")
+                        d.goStraight(STRAIGHT_SPEED)
+                    else:
+                        print("No Line")
+                        d.sweep(SWEEP_SPEED)
                 else:
-                    print("No Line")
-                    d.sweep(SWEEP_SPEED)
+                    d.goStraight(STRAIGHT_SPEED)
                     
-                mag = pay.getMagneticStrength()
-                if mag > MAG_THRESH:
+                mags += pay.magFinder(MAG_THRESH, FIND_DELAY)
+                tel.add(mags, "Mags Found")
+                
+                if mags >= destination:
                     pay.drop(DROP_DELAY)
+                    sweep = False
 
                 # Tellemetry
                 print(tel)
