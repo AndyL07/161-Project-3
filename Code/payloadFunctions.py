@@ -13,7 +13,7 @@ class Payload():
         self.tel = telObj
         self.MAGNET_THRESHOLD = magThresh
         
-        self.dropMotor = Motor('A')
+        self.dropMotor = Motor('C')
         self.dropMotor.run_to_position(INITIAL_POS)
         self.IMU = IMUSensor()
         self.dropping = 0

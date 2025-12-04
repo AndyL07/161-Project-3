@@ -18,11 +18,11 @@ import time
 # Constants
 # ----------------------
 WAIT_TIME = 0.05
-STRAIGHT_SPEED = 0.8
-SWEEP_SPEED = 0.5
+STRAIGHT_SPEED = 0.5
+SWEEP_SPEED = 0.25
 MAG_THRESH = 1000
 DROP_DELAY = 0.
-FIND_DELAY = 1.0
+FIND_DELAY = 2.0
 STRAGHT_TIME = 4
 
 # Running Code
@@ -41,15 +41,18 @@ def main():
     d = Drive(tel)
     pay = Payload(tel, MAG_THRESH)
     
-    print(f"Going straight for {STRAGHT_TIME} seconds")
-    d.goStraight(0.8)
-    time.sleep(STRAGHT_TIME)
-    print("Done going straight")
+#     print(f"Going straight for {STRAGHT_TIME} seconds")
+#     d.goStraight(0.8)
+#     time.sleep(STRAGHT_TIME)
+#     print("Done going straight")
     
     mags = 0
     destination = 1
     destination += 1
     sweep = True
+    
+    straightTime = Timer(0.05)
+    straight = 0
     
     try: 
         while True:
@@ -61,9 +64,21 @@ def main():
                     if lineFound:
                         print("Line")
                         d.goStraight(STRAIGHT_SPEED)
+#                         match straight:
+#                             case 0:
+#                                 straightTime.reset()
+#                                 straight = 1
+#                             case 1:
+#                                 if straightTime.flagReached():
+#                                     print("Line")
+#                                     d.goStraight(STRAIGHT_SPEED)
+#                                 else:
+#                                     print("No Line - Slow Search")
+#                                     d.sweep(SWEEP_SPEED / 2)
                     else:
                         print("No Line")
                         d.sweep(SWEEP_SPEED)
+                        straight = 0
                 else:
                     d.goStraight(STRAIGHT_SPEED)
                     

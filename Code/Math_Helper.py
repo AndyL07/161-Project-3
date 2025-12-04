@@ -5,8 +5,10 @@
 # Section: <4>
 # Team: <59>
 
+from math import sqrt
+
 def magnitude(x, y, z):
-    return dotProduct([x, y, z], [x, y, z])
+    return sqrt(dotProduct([x, y, z], [x, y, z]))
     
 def dotProduct(v1, v2):
     dotSum = 0
@@ -14,3 +16,11 @@ def dotProduct(v1, v2):
         dotSum += v1[i] * v2[i]
         
         return dotSum
+    
+def average(arr):
+    tot = 0
+    count = 0
+    for val in arr:
+        tot += val
+        count += 1
+    return tot / count

@@ -17,6 +17,8 @@ tel = Telemetry(runTime, data)
 IMU = IMUSensor()
 
 def main():
+    count = 0
+    
     try:
         while True:
             try:
@@ -24,12 +26,15 @@ def main():
                 tel.addAccel(xA, yA, zA)
                 
                 xG, yG, zG = IMU.getGyro()
-                tel.addGyro(xA, yA, zA)
+                tel.addGyro(xG, yG, zG)
                 
                 xM, yM, zM = IMU.getMag()
                 tel.addMag(xM, yM, zM)
                 
-                tel.add("Found", "Line", True)
+#                 tel.add("Found", "Line", True)
+                
+                count += 1
+                tel.add(count, "Index")
                 
                 print(tel)
                 tel.reset()

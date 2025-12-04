@@ -52,7 +52,7 @@ class DataCollection():
         self.data[label].append(value)
         
     def toExcel(self):
-        df = pd.read_excel("Pi_Data.xlsx", "Working Sheet", engine='openpyxl')
+        df = pd.read_excel("Pi_Data0.xlsx", "Working Sheet", engine='openpyxl')
         
         self.timeSeries = pd.Series(self.time)
         self.otherSeries = pd.Series(self.other)
@@ -94,5 +94,5 @@ class DataCollection():
         
         print(df.describe())
         
-        df.to_excel("Pi_Data.xlsx", sheet_name="Working Sheet", engine='openpyxl')
+        df.to_excel("Pi_Data3.xlsx", sheet_name="Working Sheet", engine='openpyxl')
         
