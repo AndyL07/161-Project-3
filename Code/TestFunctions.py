@@ -33,8 +33,14 @@ def main():
 #     while not sweepTime.flagReached():
 #         d.sweep(0.5)
 
-#     d.goStraight(0.5)
-#     time.sleep(3)
+    d.goStraight(0.5)
+    time.sleep(3)
+
+    d.goLeft(0.5)
+    time.sleep(2)
+    
+    d.goRight(0.5)
+    time.sleep(2)
         
     try: 
         while True:

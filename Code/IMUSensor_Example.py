@@ -8,6 +8,7 @@
 # import the necessary packages for your sensor and code
 from basehat import IMUSensor
 from Telemetry import Telemetry
+from driveFunctions import Drive
 from Timer import Timer
 from Math_Helper import average
 import time
@@ -17,53 +18,73 @@ def main():
     # Initializing the IMU so the example can utilize the sensor
     IMU = IMUSensor()
     
-    arrAccelY = []
+    arrAccelX = []
     for i in range(10):
         x, y, z = IMU.getAccel()
-        arrAccelY.append(z)
+        arrAccelX.append(x)
         time.sleep(0.05)
-    avgAccelY = average(arrAccelY)
+    avgAccelX = average(arrAccelX)
     
-    ACCEL_THRESH = 0.075
+    arrGyroY = []
+    arrGyroZ = []
+    for i in range (20):
+        x, y, z = IMU.getGyro()
+        arrGyroY.append(y)
+        arrGyroZ.append(z)
+    yAvg = average(arrGyroY)
+    zAvg = average(arrGyroZ)
+    
+    ACCEL_THRESH = 0.0
+    SPEED_CHANGER = 0.00001
+    TARGET_VEL = 20
     
     newTime = 0
     newGyroZ = 0
     angle = 0
-    newAccelY = 0
-    newVelY = 0
-    Ypos = 0
+    newGyroY = 0
+    incline = 0
+    
+    newAccelX = 0
+    newVelX = 0
+    Xpos = 0
         
     runTime = Timer()
     tel = Telemetry(runTime)
+    d = Drive(tel)
     
-    try: 
+    try:
+        driveTime = Timer(20)
+        speedTime = Timer(2)
+        
         while True:
             try:
                 # Sets values of previous loop
                 oldTime = newTime
                 oldGyroZ = newGyroZ
-                oldAccelY = newAccelY
-                oldVelY = newVelY
+                oldGyroY = newGyroY
+                oldAccelX = newAccelX
+                oldVelX = newVelX
                 
                 newTime = runTime.currTime()
                 
                 # Reading acceleration values and printing them
                 x, y, z = IMU.getAccel()
 #                 tel.add(" AX = %7.2f m/s^2 \t AY = %7.2f m/s^2 \t AZ = %7.2f m/s^2" % (x, y, z))
-                newAccelY = y - avgAccelY
-                tel.add(y, "oldAccelY")
-                tel.add(newAccelY, "newAccelY")
-                if abs(newAccelY < ACCEL_THRESH):                    
-                    newAccelY = 0
+                newAccelX = x - avgAccelX
+#                 tel.add(x, "oldAccelX")
+#                 tel.add(newAccelX, "newAccelX")
+                if abs(newAccelX < ACCEL_THRESH):                    
+                    newAccelX = 0
                     
-                arrAccelY.pop(0)
-                arrAccelY.append(y)
-                avgAccelY = average(arrAccelY)
-                tel.add(avgAccelY, "Average")
+                arrAccelX.pop(0)
+                arrAccelX.append(y)
+                avgAccelX = average(arrAccelX)
+#                 tel.add(avgAccelX, "Average")
 
                 # Reading gyroscope values and printing them
                 x, y, z = IMU.getGyro()
-                newGyroZ = z
+                newGyroZ = z - zAvg
+                newGyroY = y - yAvg
 #                 tel.add(" GX = %7.2f dps \t GY = %7.2f dps \t GZ = %7.2f dps" % (x, y, z))  
 
                 # Reading magnet values and printing them
@@ -74,11 +95,29 @@ def main():
                 # time.sleep(1.0)
                 
                 angle += (newTime - oldTime) * (oldGyroZ + newGyroZ) / 2
-#                 tel.add(angle, "Angle")
+                tel.add(angle, "Angle")
                 
-                newVelY += (newTime - oldTime) * (oldAccelY + newAccelY) / 2
-                Ypos += (newTime - oldTime) * (oldVelY + newVelY) / 2
-                tel.add(Ypos * 100, "Y Pos")
+                incline += (newTime - oldTime) * (oldGyroY + newGyroY) / 2
+                tel.add(incline, "Incline")
+                
+                newVelX += (newTime - oldTime) * (oldAccelX + newAccelX) / 2
+                Xpos += (newTime - oldTime) * (oldVelX + newVelX) / 2
+#                 tel.add(newVelX * 100, "X Vel")
+                
+#                 if speedTime.flagReached():
+#                     speed += (TARGET_VEL - (newVelX * 100)) * SPEED_CHANGER
+#                     if speed > 1:
+#                         speed = 1
+#                     tel.add(speed, "Speed")
+#                 else:
+#                     speed = 0.3
+#                 
+#                 if driveTime.flagReached():
+#                     tel.add("Stopping")
+#                     d.stop()
+#                 else:
+#                     tel.add("Driving")
+#                     d.fullSmartStraight(speed, angle)
                 
                 print(tel)
                 tel.reset()

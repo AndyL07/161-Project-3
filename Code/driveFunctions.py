@@ -4,8 +4,10 @@ from buildhat import Motor
 from Timer import Timer
 #import time
 
-SWEEP_TIME = 0.45
-SWEEP_FORWARD_TIME = 0.35
+SWEEP_TIME = 0.55
+SWEEP_FORWARD_TIME = 0.3
+MAX_ANGLE = 30
+CORRECTION_COEFF = 1
 
 class Drive:
     def __init__(self, telObj, prints=False):
@@ -69,7 +71,7 @@ class Drive:
             print(self.tel)
             self.tel.reset()
         
-    def sweep(self, speed):
+    def sweep(self, speed, angle):
 #         self.tel.add(self.sweeping, "Case")
         match self.sweeping:
             case 0:
@@ -77,6 +79,8 @@ class Drive:
                 self.sweepTimer.reset()
                 self.sweepTimer.setFlag(SWEEP_TIME)
                 self.sweeping = 2
+                if angle < 0:
+                    self.sweeping = 5
                 self.tel.add("Initial Case")
             case 1:
                 self.goStraight(speed, False)
@@ -113,19 +117,60 @@ class Drive:
                 if self.sweepTimer.flagReached():
                     self.sweepForwardTimer.reset()
                     self.sweeping = 1
+            case 5:
+                self.goLeft(speed)
+                self.tel.add("Sweeping Left - init")
+#                 self.tel.add(self.sweepTimer.getFlag(), "Timer Flag")
+                
+                if self.sweepTimer.flagReached():
+                    self.sweepTimer.reset()
+                    self.sweepTimer.setFlag(SWEEP_TIME)
+                    self.sweeping = 6
+            case 6:
+                self.goRight(speed)
+                self.tel.add("Sweeping Right - init")
+#                 self.tel.add(self.sweepTimer.getFlag(), "Timer Flag")
+                
+                if self.sweepTimer.flagReached():
+                    self.sweepForwardTimer.reset()
+                    self.sweeping = 1
+                
         if self.print:
             print(self.tel)
             self.tel.reset()
             
     def goSmartStriaght(self, speed, difference, resetCase=True):
-        self.leftMotor.pwm(speed + difference)
-        self.rightMotor.pwm(-(speed - difference))
-        self.tel.add("Going Smart Straight")
+        leftSpeed = speed + difference
+        rightSpeed = -(speed - difference)
+        
+        if leftSpeed > 1:
+            change = leftSpeed - 1
+            rightSpeed += change 
+            leftSpeed = 1
+        if rightSpeed < -1:
+            change = rightSpeed + 1
+            leftSpeed += change
+            rightSpeed = -1
+            
+        self.leftMotor.pwm(leftSpeed)
+        self.rightMotor.pwm(rightSpeed)
+        
+        self.tel.add(difference, "Going Smart Straight")
+        self.tel.add(abs(rightSpeed), "Right Motor")
+        self.tel.add(leftSpeed, "Left Motor")
         if resetCase:
             self.sweeping = 0
         if self.print:
             print(self.tel)
             self.tel.reset()
+            
+    def fullSmartStraight(self, speed, angle, resetCase=True):
+        if (angle % 90 < MAX_ANGLE):
+            self.goSmartStriaght(speed, speed * ((angle % 90)/ MAX_ANGLE) * CORRECTION_COEFF, resetCase)
+        elif (angle % 90 > (90 - MAX_ANGLE)):
+            self.goSmartStriaght(speed, speed * (((angle % 90) - 90) / MAX_ANGLE) * CORRECTION_COEFF, resetCase)
+        else:
+            self.goStraight(speed)
         
         
     def stop(self):
@@ -134,7 +179,7 @@ class Drive:
         self.tel.add("Stopping")
         if self.print:
             print(self.tel)
-        self.tel.reset()
+            self.tel.reset()
         
     def gofast(self, speed):
         self.leftMotor.pwm(2 * speed)

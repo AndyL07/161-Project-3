@@ -10,6 +10,7 @@
 # --------------------------
 from basehat import LineFinder
 # from payloadFunctions import Payload
+from basehat import IMUSensor
 from driveFunctions import Drive
 from Telemetry import Telemetry
 from Timer import Timer
@@ -18,8 +19,9 @@ import time
 # Constants
 # ----------------------
 WAIT_TIME = 0.05
-STRAIGHT_SPEED = 0.6
-SWEEP_SPEED = 0.5
+STRAIGHT_SPEED = 0.4
+SWEEP_SPEED = 0.3
+INLINE_THRESH = 10
 
 # Running Code
 # ------------------------
@@ -32,6 +34,15 @@ def main():
     # Initializing the sensor so the function within the class can be used
     lineFinder = LineFinder(linePin)
     
+    # Initializing the IMU so the example can utilize the sensor
+    IMU = IMUSensor()
+    
+    newTime = 0
+    newGyroZ = 0
+    angle = 0
+    newGyroY = 0
+    incline = 0    
+    
     runTime = Timer()
     tel = Telemetry(runTime)
     d = Drive(tel)   
@@ -41,13 +52,31 @@ def main():
             try: 
                 # update and read the values of the lineFinder
                 lineFound = lineFinder.value
+                
+                # Sets values of previous loop
+                oldTime = newTime
+                oldGyroZ = newGyroZ
+                oldGyroY = newGyroY
+                
+                newTime = runTime.currTime()
+                x, newGyroY, newGyroZ = IMU.getGyro()
+                
+                angle += (newTime - oldTime) * (oldGyroZ + newGyroZ) / 2
+                tel.add(angle, "Angle")
+                
+                incline += (newTime - oldTime) * (oldGyroY + newGyroY) / 2
+                tel.add(incline, "Incline")
 
-                if lineFound:
-                    print("Line")
-                    d.goStraight(STRAIGHT_SPEED)
+                if incline > INLINE_THRESH:
+                    tel.add("Going Up")
+                    d.fullSmartStraight(STRAIGHT_SPEED, angle)
                 else:
-                    print("No Line")
-                    d.sweep(SWEEP_SPEED)
+                    if lineFound:
+                        tel.add("Line")
+                        d.fullSmartStraight(STRAIGHT_SPEED, angle)
+                    else:
+                        tel.add("No Line")
+                        d.sweep(SWEEP_SPEED)
 
                 # Tellemetry
                 print(tel)

@@ -8,7 +8,7 @@
 
 # Imports
 # --------------------------
-# from basehat import LineFinder
+from basehat import LineFinder
 # from payloadFunctions import Payload
 from basehat import IMUSensor
 from driveFunctions import Drive
@@ -19,21 +19,22 @@ import time
 # Constants
 # ----------------------
 WAIT_TIME = 0.05
-SPEED = 0.6
-CORRECTION_COEFF = 0.1
-MAX_ANGLE = 20
+STRAIGHT_SPEED = 0.45
+SWEEP_SPEED = 0.3
+CORRECTION_COEFF = 1
+MAX_ANGLE = 30
 
 
 # Running Code
 # ------------------------
 def main():
-    # # set the pin to be used
-    # # if sensor is plugged into port D5, pin1 should be 5
-    # # make sure to only plug in LineFinder Sensor to digital ports of the Grove BaseHAT (D5, D16, D18, D22, D24, D26)
-    # linePin = 5
+    # set the pin to be used
+    # if sensor is plugged into port D5, pin1 should be 5
+    # make sure to only plug in LineFinder Sensor to digital ports of the Grove BaseHAT (D5, D16, D18, D22, D24, D26)
+    linePin = 5
 
-    # # Initializing the sensor so the function within the class can be used
-    # lineFinder = LineFinder(linePin)
+    # Initializing the sensor so the function within the class can be used
+    lineFinder = LineFinder(linePin)
     
     # Initializing the IMU so the example can utilize the sensor
     IMU = IMUSensor()
@@ -49,15 +50,8 @@ def main():
     try: 
         while True:
             try: 
-                # # update and read the values of the lineFinder
-                # lineFound = lineFinder.value
-
-                # if lineFound:
-                #     print("Line")
-                #     d.goStraight(STRAIGHT_SPEED)
-                # else:
-                #     print("No Line")
-                #     d.sweep(SWEEP_SPEED)
+                # update and read the values of the lineFinder
+                lineFound = lineFinder.value
 
                 # Sets values of previous loop
                 oldTime = newTime
@@ -68,11 +62,11 @@ def main():
                 
                 angle += (newTime - oldTime) * (oldGyroZ + newGyroZ) / 2
                 tel.add(angle, "Angle")
+
+                d.fullSmartStraight(STRAIGHT_SPEED, angle)
                 
-                if (angle % 90 < MAX_ANGLE):
-                    d.goSmartStriaght(SPEED, SPEED * (angle / MAX_ANGLE) * -CORRECTION_COEFF)
-                elif (angle % 90 > (90 - MAX_ANGLE)):
-                    d.goSmartStriaght(SPEED, SPEED * (((angle % 90) - 90) / MAX_ANGLE) * -CORRECTION_COEFF)
+#                 # Test what regular would be like
+#                 d.goStraight(SPEED)
 
                 # Tellemetry
                 print(tel)

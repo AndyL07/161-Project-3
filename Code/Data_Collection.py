@@ -94,5 +94,5 @@ class DataCollection():
         
         print(df.describe())
         
-        df.to_excel("Pi_Data3.xlsx", sheet_name="Working Sheet", engine='openpyxl')
+        df.to_excel("Pi_Data7.xlsx", sheet_name="Working Sheet", engine='openpyxl')
         
