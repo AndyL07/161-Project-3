@@ -23,10 +23,13 @@ WAIT_TIME = 0.05
 STRAIGHT_SPEED = 0.6
 SWEEP_SPEED = 0.3
 INLINE_THRESH = 5
-MAG_THRESH = 1000
+MAG_THRESH = 250
 DROP_DELAY = 0.2
 FIND_DELAY = 2.0
-STRAGHT_TIME = 4
+#STRAGHT_TIME = 4
+HILL_TOP_TIME = 2
+INTEGRATION_WAIT = 2
+MAG_TURN_WAIT = 1
 
 # Running Code
 # ------------------------
@@ -63,16 +66,23 @@ def main():
     incline = 0  
     
     mags = 0
-    destination = 2
-    destination += 1
+    destination = 1
+    runCondition = 0
     
-    straightTime = Timer(2)
-    runTime = Timer()
-    tel = Telemetry(runTime)
-    d = Drive(tel)
-    pay = Payload(tel, MAG_THRESH)
-    
-    try: 
+    try:
+        print("Start")
+        straightTime = Timer(HILL_TOP_TIME)
+        integrationTimer = Timer(INTEGRATION_WAIT)
+        magTurnTimer = Timer(MAG_TURN_WAIT)
+        runTime = Timer()
+        tel = Telemetry(runTime)
+        d = Drive(tel)
+        pay = Payload(tel, MAG_THRESH)
+        
+        time.sleep(1)
+        
+        print("Initialized")
+        
         while True:
             try: 
                 # update and read the values of the lineFinder
@@ -97,24 +107,73 @@ def main():
                 mags += pay.magFinder(MAG_THRESH, FIND_DELAY)
                 tel.add(mags, "Mags Found")
 
-                if mags >= destination:
-                    pay.drop(DROP_DELAY)
-                else:
-                    if incline > INLINE_THRESH:
-                        tel.add("Going Up")
-                        d.fullSmartStraight(STRAIGHT_SPEED, angle)
-                        straightTime.reset()
-                    else:
+                match runCondition:
+                    case 0: # Removing incline error
+                        if integrationTimer.flagReached():
+                            case = 0.1
+                        else:
+                            print("Integration wait")
+                            incline = 0
+                    case 0.1: # Goinng up hill
+                        if incline > INLINE_THRESH:
+                            tel.add("Going Up")
+                            d.fullSmartStraight(STRAIGHT_SPEED, angle)
+                            straightTime.reset()
+                        else:
+                            runCondition = 1
+                            d.fullSmartStraight(STRAIGHT_SPEED, angle)
+                            straightTime.reset()
+                    case 1: # Top of hill
                         if straightTime.flagReached():
-                            if lineFound:
-                                tel.add("Line")
-                                d.fullSmartStraight(STRAIGHT_SPEED, angle)
-                            else:
-                                tel.add("No Line")
-                                d.sweep(SWEEP_SPEED, angle)
+                            runCondition = 2
                         else:
                             tel.add("Going Up - After")
                             d.fullSmartStraight(STRAIGHT_SPEED, angle)
+                    case 2: # Line following
+                        d.lineFollow(lineFound, STRAIGHT_SPEED, SWEEP_SPEED, angle)
+                        if mags >= destination:
+                            runCondition = 3:
+                            magTurnTimer.reset()
+                    case 3: # Going straight
+                        d.lineFollow(lineFound, STRAIGHT_SPEED, SWEEP_SPEED, angle)
+                        if magTurnTimer.flagReached():
+                            runCondition = 4
+                    case 4: # Turning right
+                        if turnRight(angle, -90, SWEEP_SPEED):
+                            case = 5
+                    case 5:
+                        if mags >= destination + 1:
+                            pay.drop(DROP_DELAY)
+                        else:
+                            d.lineFollow(lineFound, STRAIGHT_SPEED, SWEEP_SPEED, angle)
+                        
+
+
+#                 if integrationTimer.flagReached():
+#                     if mags >= destination:
+#                         if d.turnRight(angle, -90, SWEEP_SPEED):
+#                             d.lineFollow(lineFound, STRAIGHT_SPEED, SWEEP_SPEED, angle)
+#                             if mags >= destination + 1:
+#                                 pay.drop(DROP_DELAY)
+#                     else:
+#                         if incline > INLINE_THRESH:
+#                             tel.add("Going Up")
+#                             d.fullSmartStraight(STRAIGHT_SPEED, angle)
+#                             straightTime.reset()
+#                         else:
+#                             if straightTime.flagReached():
+#                                 if lineFound:
+#                                     tel.add("Line")
+#                                     d.fullSmartStraight(STRAIGHT_SPEED, angle)
+#                                 else:
+#                                     tel.add("No Line")
+#                                     d.sweep(SWEEP_SPEED, angle)
+#                             else:
+#                                 tel.add("Going Up - After")
+#                                 d.fullSmartStraight(STRAIGHT_SPEED, angle)
+#                 else:
+#                     print("Integration wait")
+#                     incline = 0
 
                 # Tellemetry
                 print(tel)

@@ -103,12 +103,14 @@ def run_some_rotations(motor):
     time.sleep(3)
 
 def run_between_positions(motor):
-    print("Run to position -170")
-    motor.run_to_position(-160, speed=100, direction='anticlockwise')
+    print("Run to position -140 - Opening")
+    motor.run_to_position(-140, speed=80, direction='anticlockwise')
+    print(motor.get_aposition())
     time.sleep(3)
 
-    print("Run to position 180")
-    motor.run_to_position(160, speed=100, direction='clockwise')
+    print("Run to position 140 - Closing")
+    motor.run_to_position(140, speed=80, direction='clockwise')
+    print(motor.get_aposition())
     time.sleep(3)
 
 def run_two_motors(motor, motorB):

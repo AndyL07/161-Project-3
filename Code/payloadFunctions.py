@@ -4,8 +4,8 @@ from Timer import Timer
 import math as m
 import time
 
-INITIAL_POS = 160
-FINAL_POS = 0
+INITIAL_POS = 140
+FINAL_POS = -140
 
 class Payload():
 

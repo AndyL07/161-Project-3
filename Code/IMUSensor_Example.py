@@ -89,7 +89,7 @@ def main():
 
                 # Reading magnet values and printing them
                 x, y, z = IMU.getMag()
-#                 tel.add(" MX = %7.2f uT \t MY = %7.2f uT \t MZ = %7.2f uT" % (x, y, z))             
+                tel.add(" MX = %7.2f uT \t MY = %7.2f uT \t MZ = %7.2f uT" % (x, y, z))             
                 
                 # # Waiting 1 second until new sensor readings   
                 # time.sleep(1.0)
