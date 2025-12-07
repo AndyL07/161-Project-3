@@ -24,3 +24,6 @@ def average(arr):
         tot += val
         count += 1
     return tot / count
+
+def within(value, center, bound):
+    return (center - bound) <= value <= (center + bound)

@@ -97,24 +97,24 @@ def main():
                 mags += pay.magFinder(MAG_THRESH, FIND_DELAY)
                 tel.add(mags, "Mags Found")
 
-#                 if mags >= destination:
-#                     pay.drop(DROP_DELAY)
-#                 else:
-#                     if incline > INLINE_THRESH:
-#                         tel.add("Going Up")
-#                         d.fullSmartStraight(STRAIGHT_SPEED, angle)
-#                         straightTime.reset()
-#                     else:
-#                         if straightTime.flagReached():
-#                             if lineFound:
-#                                 tel.add("Line")
-#                                 d.fullSmartStraight(STRAIGHT_SPEED, angle)
-#                             else:
-#                                 tel.add("No Line")
-#                                 d.sweep(SWEEP_SPEED, angle)
-#                         else:
-#                             tel.add("Going Up - After")
-#                             d.fullSmartStraight(STRAIGHT_SPEED, angle)
+                if mags >= destination:
+                    pay.drop(DROP_DELAY)
+                else:
+                    if incline > INLINE_THRESH:
+                        tel.add("Going Up")
+                        d.fullSmartStraight(STRAIGHT_SPEED, angle)
+                        straightTime.reset()
+                    else:
+                        if straightTime.flagReached():
+                            if lineFound:
+                                tel.add("Line")
+                                d.fullSmartStraight(STRAIGHT_SPEED, angle)
+                            else:
+                                tel.add("No Line")
+                                d.sweep(SWEEP_SPEED, angle)
+                        else:
+                            tel.add("Going Up - After")
+                            d.fullSmartStraight(STRAIGHT_SPEED, angle)
 
                 # Tellemetry
                 print(tel)

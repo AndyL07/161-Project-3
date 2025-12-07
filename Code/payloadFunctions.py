@@ -17,6 +17,7 @@ class Payload():
         self.dropMotor.run_to_position(INITIAL_POS)
         self.IMU = IMUSensor()
         self.dropping = 0
+        self.resetting = 0
         self.mag = 0
         self.dropTimer = Timer()
         self.magTimer = Timer()
@@ -42,12 +43,28 @@ class Payload():
         return strength
     
     def drop(self, delay):
+        self.tel.add("Droping")
         match self.dropping:
             case 0:
                 self.dropTimer = Timer(delay)
             case 1:
                 if self.dropTimer.flagReached():
                     self.dropMotor.run_to_position(FINAL_POS, direction='clockwise')
+                    self.dropping = 0
+                    return True
+                return False
+            
+    def reset(self, delay):
+        self.tel.add("Resetting")
+        match self.resetting:
+            case 0:
+                self.dropTimer = Timer(delay)
+            case 1:
+                if self.dropTimer.flagReached():
+                    self.dropMotor.run_to_position(INITIAL_POS, direction='anticlockwise')
+                    self.resetting = 0
+                    return True
+                return False
     
     
     def dropPayload(self, openAngle, closeAngle, speed):

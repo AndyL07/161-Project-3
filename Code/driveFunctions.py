@@ -2,11 +2,13 @@
 from buildhat import Motor
 #from Telemetry import Telemetry
 from Timer import Timer
+from Math_Helper import within
 #import time
 
-SWEEP_TIME = 0.55
+SWEEP_TIME = 0.6
 SWEEP_FORWARD_TIME = 0.3
 MAX_ANGLE = 30
+TURN_THRESH = 10
 CORRECTION_COEFF = 1
 
 class Drive:
@@ -20,14 +22,6 @@ class Drive:
         self.sweeping = 0
         self.sweepTimer = Timer(SWEEP_TIME)
         self.sweepForwardTimer = Timer(SWEEP_FORWARD_TIME)
-
-    def turnLeft(self, angle, power):
-        self.leftMotor.stop()
-        self.rightMotor.run_for_degrees(angle, speed=power, blocking=False)
-        self.tel.add("Turning Left")
-        if self.print:
-            print(self.tel)
-            self.tel.reset()
             
     def goLeft(self, speed):
         self.leftMotor.pwm(-speed)
@@ -36,14 +30,17 @@ class Drive:
         if self.print:
             print(self.tel)
             self.tel.reset()
-
-    def turnRight(self, angle, power):
-        self.rightMotor.stop()
-        self.leftMotor.run_for_degrees(angle, speed=-power, blocking=False)
-        self.tel.add("Turning Right")
+            
+    def turnLeft(self, angle, angleTarget, speed):
+        self.tel.add("Turning Left")
         if self.print:
             print(self.tel)
             self.tel.reset()
+        if within(angle, angleTarget, TURN_THRESH):
+            return True
+        else:
+            self.goLeft(speed)
+            return False
             
     def goRight(self, speed):
         self.leftMotor.pwm(speed)
@@ -52,6 +49,17 @@ class Drive:
         if self.print:
             print(self.tel)
             self.tel.reset()
+            
+    def turnRight(self, angle, angleTarget, speed):
+        self.tel.add("Turning Right")
+        if self.print:
+            print(self.tel)
+            self.tel.reset()
+        if within(angle, angleTarget, TURN_THRESH):
+            return True
+        else:
+            self.goRight(speed)
+            return False
         
     def goStraight(self, speed, resetCase=True):
         self.leftMotor.pwm(speed)
@@ -171,6 +179,14 @@ class Drive:
             self.goSmartStriaght(speed, speed * (((angle % 90) - 90) / MAX_ANGLE) * CORRECTION_COEFF, resetCase)
         else:
             self.goStraight(speed)
+            
+    def lineFollow(self, lineFound, strtSpeed, sweepSpeed, angle):
+        if lineFound:
+            self.tel.add("Line")
+            self.fullSmartStraight(strtSpeed, angle)
+        else:
+            self.tel.add("No Line")
+            self.sweep(sweepSpeed, angle)
         
         
     def stop(self):
