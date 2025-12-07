@@ -47,6 +47,7 @@ def main():
     # Initializing the IMU so the example can utilize the sensor
     IMU = IMUSensor()
     
+    # Getting the average gyro for fixing drift
     arrGyroY = []
     arrGyroZ = []
     for i in range (100):
@@ -54,22 +55,24 @@ def main():
         arrGyroY.append(y)
         arrGyroZ.append(z)
         time.sleep(0.05)
-    
     for i in range(10):
         arrGyroY.pop(0)
         arrGyroZ.pop(0)
     yAvg = average(arrGyroY)
     zAvg = average(arrGyroZ)
     
+    # Integrating variables
     newTime = 0
     newGyroZ = 0
     angle = 0
     newGyroY = 0
     incline = 0  
     
+    # Running variables
     mags = 0
     runCondition = 0
     
+    # Class instantiations
     segmentTimer = Timer(2)
     runTime = Timer()
     tel = Telemetry(runTime)
@@ -87,17 +90,21 @@ def main():
                 oldGyroZ = newGyroZ
                 oldGyroY = newGyroY
                 
+                # Gets new values of data
                 newTime = runTime.currTime()
                 x, y, z = IMU.getGyro()
                 newGyroY = y - yAvg
                 newGyroZ = z - zAvg
                 
+                # Turn angle integration
                 angle += (newTime - oldTime) * (oldGyroZ + newGyroZ) / 2
                 tel.add(angle, "Angle")
                 
+                # Inc;ine integration
                 incline += (newTime - oldTime) * (oldGyroY + newGyroY) / 2
                 tel.add(incline, "Incline")
                 
+                # Mag detection
                 mags += pay.magFinder(MAG_THRESH, FIND_DELAY)
                 tel.add(mags, "Mags Found")
 
@@ -169,12 +176,12 @@ def main():
                             runCondition = 8
                         else:
                             d.lineFollow(lineFound, STRAIGHT_SPEED, SWEEP_SPEED, angle)
-                    case 8:
+                    case 8: # Reloading
                         if pay.reset():
                             runCondition = 9
                             segmentTimer.setFlag(1)
                             segmentTimer.reset()
-                    case 9:
+                    case 9: # Wait for a sec before restarting
                         if segmentTimer.flagReached():
                             angle = 0
                             incline = 0
