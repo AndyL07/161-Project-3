@@ -1,5 +1,6 @@
 from basehat import IMUSensor
-from buildhat import Motor
+# from buildhat import Motor
+from Advanced_Motor import AdvMotor
 from Timer import Timer
 import math as m
 import time
@@ -15,8 +16,8 @@ class Payload():
         self.tel = telObj
         self.MAGNET_THRESHOLD = magThresh
         
-        self.dropMotor = Motor('C')
-        self.dropMotor.run_to_position(INITIAL_POS)
+        self.dropMotor = AdvMotor('C')
+        self.dropMotor.runToPos(INITIAL_POS)
         self.IMU = IMUSensor()
         self.dropping = 0
         self.resetting = 0
@@ -51,7 +52,7 @@ class Payload():
                 self.dropTimer = Timer(delay)
             case 1:
                 if self.dropTimer.flagReached():
-                    self.dropMotor.run_to_position(FINAL_POS, direction='clockwise')
+                    self.dropMotor.runToPos(FINAL_POS, direction='clockwise')
                     self.dropping = 0
                     return True
                 return False
@@ -63,7 +64,7 @@ class Payload():
                 self.dropTimer = Timer(delay)
             case 1:
                 if self.dropTimer.flagReached():
-                    self.dropMotor.run_to_position(INITIAL_POS, direction='anticlockwise')
+                    self.dropMotor.runToPos(INITIAL_POS, direction='anticlockwise')
                     self.resetting = 0
                     return True
                 return False
