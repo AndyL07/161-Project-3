@@ -176,22 +176,9 @@ def main():
                             segmentTimer.reset()
                     case 9:
                         if segmentTimer.flagReached():
+                            angle = 0
+                            incline = 0
                             runCondition = 0
-                        
-
-                if mags >= DESTINATION:
-                    pay.drop(DROP_DELAY)
-                else:
-                    if incline > INLINE_THRESH:
-                        tel.add("Going Up")
-                        d.fullSmartStraight(STRAIGHT_SPEED, angle)
-                        segmentTimer.reset()
-                    else:
-                        if segmentTimer.flagReached():
-                            d.lineFollow(lineFound, STRAIGHT_SPEED, SWEEP_SPEED, angle)
-                        else:
-                            tel.add("Going Up - After")
-                            d.fullSmartStraight(STRAIGHT_SPEED, angle)
 
                 # Tellemetry
                 print(tel)
