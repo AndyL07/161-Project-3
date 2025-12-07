@@ -10,6 +10,7 @@
 # ------------------------------------------
 from basehat import LineFinder
 from basehat import IMUSensor
+from basehat import Button
 from payloadFunctions import Payload
 from driveFunctions import Drive
 from Telemetry import Telemetry
@@ -30,8 +31,10 @@ STRAGHT_TIME = 4
 ANGLE_THRESH = 20
 HILL_DELAY = 2
 RELOAD_DELAY = 5
+INSTANTIATION_TIME = 10
 
-DESTINATION = 2 # PUT 1, 2, OR 3 HERE FOR DROPOFF LOCATION
+CARGO = 1
+DESTINATION = 1
 
 # Running Code
 # ------------------------
@@ -46,6 +49,9 @@ def main():
     
     # Initializing the IMU so the example can utilize the sensor
     IMU = IMUSensor()
+    
+    cargoButton = Button(16)  #Create a Button instance
+    locationButton = Button(22)  #Create a Button instance
     
     # Getting the average gyro for fixing drift
     arrGyroY = []
@@ -72,8 +78,11 @@ def main():
     mags = 0
     runCondition = 0
     
+    cargoButton.when_pressed = incrementCargo
+    locationButton.when_pressed = incrementLocation
+    
     # Class instantiations
-    segmentTimer = Timer(2)
+    segmentTimer = Timer(INSTANTIATION_TIME)
     runTime = Timer()
     tel = Telemetry(runTime)
     d = Drive(tel)
@@ -109,7 +118,23 @@ def main():
                 tel.add(mags, "Mags Found")
 
                 match runCondition:
-                    case 0: # Start segment
+                    case 0:
+                        angle = 0
+                        incline = 0
+                        tel.add(10  - segmentTimer.currTime(), "Time Left")
+                        
+                        match CARGO:
+                            case 1:
+                                cargoType = "Cone"
+                            case 2:
+                                cargoType = "Cylinder"
+                            case 3:
+                                cargoType = "Cube"
+                        
+                        tel.add(cargoType, "Cargo")
+                        tel.add(DESTINATION, "Destination")
+                        
+                    case 0.1: # Start segment
                         d.lineFollow(lineFound, STRAIGHT_SPEED, SWEEP_SPEED, angle)
                         if within(angle, -90, ANGLE_THRESH):
                             runCondition = 1
@@ -178,14 +203,9 @@ def main():
                             d.lineFollow(lineFound, STRAIGHT_SPEED, SWEEP_SPEED, angle)
                     case 8: # Reloading
                         if pay.reset():
-                            runCondition = 9
-                            segmentTimer.setFlag(1)
-                            segmentTimer.reset()
-                    case 9: # Wait for a sec before restarting
-                        if segmentTimer.flagReached():
-                            angle = 0
-                            incline = 0
                             runCondition = 0
+                            segmentTimer.setFlag(INSTANTIATION_TIME)
+                            segmentTimer.reset()
 
                 # Tellemetry
                 print(tel)
@@ -204,3 +224,16 @@ def main():
 
 if __name__ == '__main__':
     main()
+    
+    
+def incrementLocation():
+    global DESTINATION
+    DESTINATION += 1 # Increments DESTINATION
+    DESTINATION %= 3 # Takes modulus (since there's only 3 types)
+    DESTINATION += 1 # Adds 1 (so that it starts at 0)
+    
+def incrementCargo():
+    global CARGO
+    CARGO += 1 # Increments CARGO
+    CARGO %= 3 # Takes modulus (since there's only 3 types)
+    CARGO += 1 # Adds 1 (so that it starts at 0)

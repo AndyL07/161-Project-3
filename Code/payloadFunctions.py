@@ -7,6 +7,8 @@ import time
 INITIAL_POS = 140
 FINAL_POS = -140
 
+
+
 class Payload():
 
     def __init__(self, telObj, magThresh):
@@ -65,7 +67,18 @@ class Payload():
                     self.resetting = 0
                     return True
                 return False
-    
+            
+    def incrementCargo(self, cargoType):
+        match cargoType:
+            case 1: # Cone
+                FINAL_POS = -140 # Change for needed position for cone
+                self.tel.add("Cargo now Cone")
+            case 2: # Cylinder
+                FINAL_POS = -140 # Change for needed position for cylinder
+                self.tel.add("Cargo now Cylinder")
+            case 3: # Cube
+                FINAL_POS = -140 # Change for needed position for cube
+                self.tel.add("Cargo now Cube")
     
     def dropPayload(self, openAngle, closeAngle, speed):
         self.dropMotor.run_to_relative_position(openAngle, speed)
